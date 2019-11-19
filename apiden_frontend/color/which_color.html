@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        table, th, td {
+          border: 0px;
+          border-collapse: collapse;
+        }
+        th, td {
+          padding: 5px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <title>auto color identification</title>
+    <script>
+    file_path = './colors_ex2.jpeg'
+    function showResults(selected_color) {
+        var xhttp = new XMLHttpRequest();
+
+        xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+            var colors_percents = this.responseText;
+            colors_percents = colors_percents.replace(/^\"/, "")
+            colors_percents = colors_percents.replace(/\"$/,"")
+            colors_percents = colors_percents.replace(/\\/g,"")
+            var obj = JSON.parse(colors_percents)
+            document.getElementById("red_value").value=obj.red_v
+            document.getElementById("orange_value").value=obj.orange_v
+            document.getElementById("yellow_value").value=obj.yellow_v
+            document.getElementById("green_value").value=obj.green_v
+            document.getElementById("turquoise_value").value=obj.turquoise_v
+            document.getElementById("blue_value").value=obj.blue_v
+            document.getElementById("purple_value").value=obj.purple_v
+            document.getElementById("white_value").value=obj.white_v
+            document.getElementById("black_value").value=obj.black_v
+
+          }
+        };
+        xhttp.open("POST", "http://127.0.0.1:8000/idealweight/", false);
+        xhttp.send(selected_color);
+    }
+
+    function loadInitialImg(){
+      var c = document.getElementById("myCanvas");
+      var ctx = c.getContext("2d");
+      var imgObj = new Image();
+      imgObj.src = file_path
+      ctx.drawImage(imgObj,0,0, c.width, c.height);
+      <!--c.addEventListener("mousemove", mousemove_eventHandler);-->
+      c.addEventListener("click", click_eventHandler);
+     }
+
+     function mousemove_eventHandler(event){
+        target_color = get_target_color(event)
+        document.getElementById("target_color_demo").style.background = target_color;
+        document.getElementById("target_color_hex").innerHTML =  target_color
+     }
+
+     function click_eventHandler(event){
+      target_color = get_target_color(event)
+      document.getElementById("target_color_hex").innerHTML = target_color
+      document.getElementById("target_color_demo").style.background = target_color;
+      showResults(target_color)
+     }
+
+
+     function get_target_color(e){
+      // chrome
+      if(e.offsetX) {
+        x = e.offsetX;
+        y = e.offsetY;
+      }
+      // firefox
+      else if(e.layerX) {
+        x = e.layerX;
+        y = e.layerY;
+      }
+
+      // get image data
+      var p = document.getElementById("myCanvas").getContext('2d').getImageData(x, y, 1, 1).data;
+      target_color = rgbToHex(p[0],p[1],p[2]);
+      return target_color
+     }
+
+    // convert rgba to hex
+    // http://stackoverflow.com/questions/5623838/rgb-to-hex-and-hex-to-rgb
+    function componentToHex(c) {
+      var hex = c.toString(16);
+      return hex.length == 1 ? "0" + hex : hex;
+    }
+    function rgbToHex(r, g, b) {
+      return "#" + componentToHex(r) + componentToHex(g) + componentToHex(b);
+    }
+
+</script>
+</head>
+<body onload="loadInitialImg()">
+<p/>
+<table>
+    <tr>
+        <td>target_color: </td>
+        <td id="target_color_hex" ></td>
+        <td id="target_color_demo" width="100"></td>
+    </tr>
+</table>
+<p/>
+<table>
+    <tr>
+        <td rowspan="10" >
+            <canvas id="myCanvas" width="600" height="400" style="border:none;">
+                Your browser does not support the HTML5 canvas tag.
+                <img src="colors_ex2.jpeg" width="200">
+            </canvas>
+        </td>
+        </td>
+        <td width="20" style="background-color:red;"></td>
+        <td>红</td>
+        <td><input type="text" id="red_value"></td>
+    </tr>
+    <tr>
+        <td width="20" style="background-color:orange;"></td>
+        <td>橙</td>
+         <td><input type="text" id="orange_value"></td>
+    </tr>
+    <tr>
+        <td width="20" style="background-color:yellow;"></td>
+        <td>黄</td>
+         <td><input type="text" id="yellow_value"></td>
+    </tr>
+    <tr>
+        <td width="20" style="background-color:green;"></td>
+        <td>绿</td>
+         <td><input type="text" id="green_value"></td>
+    </tr>
+    <tr>
+        <td width="20" style="background-color:turquoise;"></td>
+        <td>青</td>
+         <td><input type="text" id="turquoise_value"></td>
+    </tr>
+    <tr>
+        <td width="20" style="background-color:blue;"></td>
+        <td>蓝</td>
+        <td><input type="text" id="blue_value"></td>
+    </tr>
+    <tr>
+        <td width="20" style="background-color:purple;"></td>
+        <td>紫</td>
+        <td><input type="text" id="purple_value"></td>
+    </tr>
+     <tr>
+        <td width="20" style="background-color:white;"></td>
+        <td>白</td>
+        <td><input type="text" id="white_value"></td>
+    </tr>
+     <tr>
+        <td width="20" style="background-color:black;"></td>
+        <td>黑</td>
+        <td><input type="text" id="black_value"></td>
+    </tr>
+    <tr>
+         <td width="20" style="background-color:white;"></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td colspan="1" rowspan="1" align="middle"><button id='analyse' onclick="showResults()">分析</button></td>
+    </tr>
+</table>
+
+</body>
+</html>
